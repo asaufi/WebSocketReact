@@ -1,25 +1,18 @@
 {
-  "name": "websocket-demo",
-  "version": "0.1.0",
+  "name": "web-websocket-demo",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "concurrently -k -s first \"node server.js\" \"react-scripts start\"",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "dev": "concurrently --kill-others \"node server.js\" \"npx vite\"",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
   "devDependencies": {
-    "concurrently": "^7.0.0",
-    "react-scripts": "^5.0.0"
+    "concurrently": "^8.2.2",
+    "vite": "^5.1.4"
   },
   "dependencies": {
-    "http-proxy-middleware": "^2.0.3",
-    "ws": "^8.5.0"
+    "ws": "^8.16.0"
   }
 }
