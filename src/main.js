@@ -31,27 +31,53 @@ ws.onopen = (event) => {
   console.log("We are connected.");
 };
 
-// Listen to messages coming from the server. When it happens, create a new <li> and append it to the DOM.
-const messages = document.querySelector('#messages');
-let line;
-ws.onmessage = (event) => {
-  line = document.createElement('li');
-  line.textContent = event.data;
-  messages.appendChild(line);
-};
+// Fonction pour obtenir les coordonnées de la souris relatives au canvas
+function getCanvasMousePosition(e) {
+  const rect = canvas.getBoundingClientRect(); // Rectangle du canvas
+  const scaleX = canvas.width / rect.width;     // Échelle horizontale
+  const scaleY = canvas.height / rect.height;   // Échelle verticale
 
-// Retrieve the input element. Add listeners in order to send the content of the input when the "return" key is pressed.
-function sendMessage(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  if (sendInput.value !== '') {
-    // Send data through the WebSocket
-    ws.send(sendInput.value);
-    sendInput.value = '';
-  }
+  // Coordonnées de la souris relatives au coin supérieur gauche du canvas
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+
+  return { x, y };
 }
-const sendForm = document.querySelector('form');
-const sendInput = document.querySelector('form input');
-sendForm.addEventListener('submit', sendMessage, true);
-sendForm.addEventListener('blur', sendMessage, true);
+
+// Variables pour stocker les informations du dessin en cours
+let isDrawing = false;
+let lastX = 0;
+let lastY = 0;
+
+function draw(e) {
+  if (!isDrawing) return; // Arrêter la fonction si nous ne sommes pas en train de dessiner
+
+  const { x, y } = getCanvasMousePosition(e); // Obtenir les coordonnées de la souris sur le canvas
+
+  // Dessiner une ligne du dernier point à celui-ci
+  context.beginPath();
+  context.moveTo(lastX, lastY);
+  context.lineTo(x, y);
+  context.stroke();
+  // couleur du trait
+  context.strokeStyle = decodeURIComponent(wsname);
+  // Mettre à jour les coordonnées du dernier point
+  lastX = x;
+  lastY = y;
+  console.log(lastX, lastY)
+  var data = {
+    x: lastX,
+    y: lastY,
+    color: decodeURIComponent(wsname)
+  };
+  //emit the message to the server
+  ws.send(JSON.stringify(data));
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  isDrawing = true;
+  const { x, y } = getCanvasMousePosition(e);
+  lastX = x;
+  lastY = y;
+});
 
