@@ -1,10 +1,11 @@
 import './main.css';
 import nameGenerator from './name-generator';
 import isDef from './is-def';
-  
-  
 
-// Store/retrieve the name in/from a cookie.
+
+const canvas = document.querySelector('canvas');
+const context = canvas.getContext('2d');
+
 const cookies = document.cookie.split(';');
 console.log(cookies)
 let wsname = cookies.find(function(c) {
