@@ -1,48 +1,76 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 
-const   port = 1234;
+const port = 1234;
 
-// create a WebSocket Server to deal with the WebSocket protocol
+// Créer un serveur WebSocket pour gérer le protocole WebSocket
 const wss = new WebSocketServer({
   port: port
-},() => {
-  console.log("WebSocket server started at ws://localhost:" + port);
+}, () => {
+  console.log("Serveur WebSocket démarré à ws://localhost:" + port);
 });
 
-// create a function to be able do broadcast messages to all WebSocket connected clients
-wss.broadcast = function broadcast(message) {
-  wss.clients.forEach(function each(client) {
-    client.send(message);
-  });
-};
+// Liste pour stocker les noms d'utilisateur connectés
+const connectedUsers = new Set();
+const listOfMessages = [];
+// Fonction pour vérifier si un nom d'utilisateur existe
+function userExists(username) {
+  return connectedUsers.has(username);
+}
 
-// Register a listener for new connections on the WebSocket.
 wss.on('connection', function(client, request) {
+  let wsname;
 
-  // retrieve the client name in the cookies
+  // Récupérer le nom d'utilisateur dans les cookies
   const cookies = request.headers.cookie.split(';');
-  let wsname = cookies.find((c) => {
-    return c.match(/^\s*wsname/) !== null;
+  wsname = cookies.find((c) => {
+    return c.trim().startsWith('wsname=');
   });
-  wsname = wsname.split('=')[1];
-  
-  console.log("First connexion from", wsname);
-  
-  // greet the newly connected user with a String message
-  client.send(' 👋 Welcome, ' + decodeURIComponent(wsname) + '!' );
 
-  // Register a listener on each message of each connection
+  if (wsname) {
+    wsname = wsname.split('=')[1].trim();
+    console.log("Première connexion de", wsname);
+    // Enregistrer le nom d'utilisateur dans la liste des utilisateurs connectés
+    connectedUsers.add(wsname);
+
+    // Envoyer la liste des messages aux nouveaux utilisateurs
+    listOfMessages.forEach(function(message) {
+      client.send(message);
+    });
+
+    // Saluer le nouvel utilisateur connecté avec un message
+    //client.send('👋 Bienvenue, ' + decodeURIComponent(wsname) + ' !');
+    //draw a square on the canvas when a new user connects
+    //client.send('{"type":"square","x":100,"y":100,"size":50,"color":"red"}');
+  } else {
+    // Déconnecter le client si aucun nom d'utilisateur n'est trouvé
+    console.log("Tentative de connexion sans nom d'utilisateur. Déconnexion...");
+    client.close();
+    return;
+  }
+//when client send canvas data
   client.on('message', function(message) {
+    console.log("Message reçu de", wsname, ":", message.toString());
+    // Transmettre le message à tous les utilisateurs connectés
+    wss.clients.forEach(function(client) {
+      if (client.readyState === 1) {
+        client.send(message.toString());
+        //ajouter les messages à la liste
+        listOfMessages.push(message.toString());
 
-    const cli = '[' + decodeURIComponent(wsname) + '] ';
-    console.log("Message from", cli);
-    // when receiving a message, broadcast it to all the connected clients
-    wss.broadcast(cli + message);
+      }
+    });
+  });
+
+
+  // Gérer la fermeture de la connexion
+  client.on('close', function() {
+    console.log("Déconnexion de", wsname);
+    // Supprimer l'utilisateur déconnecté de la liste des utilisateurs connectés
+    connectedUsers.delete(wsname);
   });
 });
-
 
 process.on('SIGINT', function() {
-  console.log("WebSocket server stopped.");
+  console.log("Serveur WebSocket arrêté.");
   process.exit(0);
 });
