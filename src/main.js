@@ -81,3 +81,21 @@ canvas.addEventListener('mousedown', (e) => {
   lastY = y;
 });
 
+
+// Structure de données pour stocker les coordonnées du dessin
+let drawingCoordinates = [];
+
+// Fonction pour ajouter des coordonnées au dessin en cours
+function addDrawingCoordinate(x, y) {
+  drawingCoordinates.push({ x, y });
+}
+
+// Événement de la souris pour enregistrer les coordonnées pendant le dessin
+canvas.addEventListener('mousemove', function(e) {
+  if (isDrawing) {
+    const { x, y } = getCanvasMousePosition(e);
+    addDrawingCoordinate(x, y);
+    draw(e);
+  }
+});
+
