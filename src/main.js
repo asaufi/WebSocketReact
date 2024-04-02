@@ -99,3 +99,23 @@ canvas.addEventListener('mousemove', function(e) {
   }
 });
 
+function sendDrawingCoordinates() {
+  const data = { type: 'drawing', coordinates: drawingCoordinates };
+  ws.send(JSON.stringify(data));
+  drawingCoordinates = []; // Réinitialiser les coordonnées après l'envoi
+}
+
+//use sendDrawingCoordinates function when mouse is released
+canvas.addEventListener('mouseup', sendDrawingCoordinates);
+canvas.addEventListener('mouseout', sendDrawingCoordinates);
+//stop drawing when mouse is released
+canvas.addEventListener('mouseup', () => isDrawing = false);
+
+ws.onmessage = function(event) {
+  var data = JSON.parse(event.data.toString());
+  //draw ellipse
+  context.beginPath();
+  context.ellipse(data.x, data.y, 5, 5, 0, 0, 2 * Math.PI);
+  context.fillStyle = data.color;
+  context.fill();
+}
