@@ -1,46 +1,39 @@
-* {
+/* Reset de base */
+html, body, canvas {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-body {
-  font: 15px Helvetica, Arial;
-}
-form {
-  background: #2e2e2e;
-  color: #d4d4d4;
-  position: fixed;
-  padding: 10px 20px;
-  font-size: larger;
-  bottom: 0;
-  width: 100%;
-}
-form input {
   border: 0;
-  background: transparent;
-  color: #d4d4d4;
-  outline-width: 0;
-  padding: 10px 20px;
-  font-size: larger;
-  width: 90%;
+  overflow: hidden;
 }
-header p {
-  text-align: center;
-  font-size: larger;
-  font-weight: bold;
-  font-style: italic;
-  margin: 1em;
-  color: #7a7a7a;
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
-#messages {
-  color: #2e2e2e;
-  list-style-type: none;
-  margin: 0 0 3em;
-  padding: 0;
+
+#whiteboardCanvas {
+  border: 2px solid #000;
+  background-color: #fff;
+  cursor: crosshair;
 }
-#messages li {
-  padding: 5px 20px;
-}
-#messages li:nth-child(odd) {
-  background: #d4d4d4;
+
+
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #007bff;
+  color: #fff;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+
 }
